@@ -1,0 +1,30 @@
+{
+  "name": "nato-practice",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint . --ext .ts",
+    "fetch-model": "node scripts/fetch-model.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite": "^5.4.0",
+    "vite-plugin-pwa": "^0.20.0",
+    "vitest": "^1.6.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
+    "prettier": "^3.2.5"
+  },
+  "dependencies": {
+    "vosk-browser": "^0.0.8"
+  },
+  "overrides": {
+    "workbox-build": "7.1.1"
+  }
+}

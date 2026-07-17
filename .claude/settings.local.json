@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npm create *)",
+      "Bash(npx vite *)",
+      "Bash(npm view *)",
+      "Bash(cd /tmp)",
+      "Bash(unzip -q vosk-model.zip)",
+      "Bash(npx eslint *)",
+      "Bash(npx vitest *)"
+    ]
+  }
+}
