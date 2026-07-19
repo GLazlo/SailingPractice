@@ -119,10 +119,25 @@ progress {
   animation: pulse 1.2s ease-in-out infinite;
 }
 
+.mic-indicator--paused {
+  background: var(--pending);
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mic-indicator {
     animation: none;
   }
+}
+
+#mic-toggle-btn {
+  background: var(--pending);
+  color: var(--text);
+}
+
+#mic-toggle-btn[aria-pressed="true"] {
+  background: var(--danger);
+  color: var(--text);
 }
 
 @keyframes pulse {

@@ -12,6 +12,7 @@ export interface ViewContext {
   wordInput: string;
   wordInputError: string | null;
   modelReady: boolean;
+  micActive: boolean;
 }
 
 export function render(ctx: ViewContext): string {
@@ -61,12 +62,16 @@ function renderPreparingModel(progress: number): string {
 
 function renderListening(ctx: ViewContext): string {
   const match = ctx.session?.match;
+  const micClass = ctx.micActive ? "mic-indicator" : "mic-indicator mic-indicator--paused";
   return `
     <div class="screen screen--listening">
-      <div class="mic-indicator" aria-hidden="true"></div>
+      <div class="${micClass}" aria-hidden="true"></div>
       <div class="tiles">${match ? renderLetterTiles(match) : ""}</div>
       ${renderTranscript(ctx.partial, ctx.session?.rejectedLog ?? [])}
       <div class="button-row">
+        <button id="mic-toggle-btn" type="button" aria-pressed="${ctx.micActive}">
+          ${ctx.micActive ? "Pause mic" : "Resume mic"}
+        </button>
         <button id="stop-btn" type="button">Stop</button>
         <button id="reveal-btn" type="button">Give up / show answer</button>
       </div>

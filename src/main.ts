@@ -15,6 +15,7 @@ let partial = "";
 let wordInput = "";
 let wordInputError: string | null = null;
 let modelReady = false;
+let micActive = true;
 
 const WORD_PATTERN = /^[A-Za-z]{1,12}$/;
 
@@ -30,7 +31,8 @@ function paint(): void {
     partial,
     wordInput,
     wordInputError,
-    modelReady
+    modelReady,
+    micActive
   };
   root!.innerHTML = render(ctx);
   bindEvents();
@@ -67,6 +69,9 @@ function bindEvents(): void {
     document.getElementById("reveal-btn")?.addEventListener("click", () => {
       void handleReveal();
     });
+    document.getElementById("mic-toggle-btn")?.addEventListener("click", () => {
+      void handleMicToggle();
+    });
   }
 
   if (state.kind === "success" || state.kind === "revealed") {
@@ -100,6 +105,7 @@ async function handleStart(): Promise<void> {
 
     session = createSession(word);
     partial = "";
+    micActive = true;
 
     speech.onFinalTokens((tokens) => {
       if (!session) return;
@@ -141,7 +147,24 @@ async function handleStop(): Promise<void> {
   await stopEngine();
   session = null;
   partial = "";
+  micActive = true;
   machine.toIdle();
+}
+
+async function handleMicToggle(): Promise<void> {
+  if (!engine) return;
+  try {
+    if (micActive) {
+      await engine.pause();
+      micActive = false;
+    } else {
+      await engine.resume();
+      micActive = true;
+    }
+    paint();
+  } catch (err) {
+    machine.toError(err instanceof Error ? err.message : String(err));
+  }
 }
 
 async function handleReveal(): Promise<void> {

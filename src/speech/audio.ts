@@ -3,6 +3,8 @@ export interface AudioSession {
   sampleRate: number;
   stream: MediaStream;
   stop(): void;
+  pause(): Promise<void>;
+  resume(): Promise<void>;
 }
 
 const WORKLET_SOURCE = `
@@ -74,6 +76,14 @@ export async function startAudioSession(
       cleanup();
       for (const track of stream.getTracks()) track.stop();
       void audioContext.close();
+    },
+    async pause() {
+      for (const track of stream.getTracks()) track.enabled = false;
+      if (audioContext.state === "running") await audioContext.suspend();
+    },
+    async resume() {
+      for (const track of stream.getTracks()) track.enabled = true;
+      if (audioContext.state === "suspended") await audioContext.resume();
     }
   };
 }

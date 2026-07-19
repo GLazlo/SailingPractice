@@ -79,6 +79,14 @@ export class VoskSpeechEngine implements SpeechEngine {
     this.recognizer = null;
   }
 
+  async pause(): Promise<void> {
+    await this.audioSession?.pause();
+  }
+
+  async resume(): Promise<void> {
+    await this.audioSession?.resume();
+  }
+
   onFinalTokens(cb: (tokens: string[]) => void): void {
     this.finalCb = cb;
   }
