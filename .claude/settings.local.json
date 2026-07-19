@@ -8,7 +8,9 @@
       "Bash(cd /tmp)",
       "Bash(unzip -q vosk-model.zip)",
       "Bash(npx eslint *)",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Bash(tar --version)",
+      "Bash(npm run *)"
     ]
   }
 }

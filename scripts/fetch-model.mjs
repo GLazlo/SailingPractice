@@ -8,7 +8,7 @@ import path from "node:path";
 const MODEL_NAME = "vosk-model-small-en-us-0.15";
 const MODEL_ZIP_URL = `https://alphacephei.com/vosk/models/${MODEL_NAME}.zip`;
 const OUT_DIR = new URL("../public/models/", import.meta.url);
-const OUT_FILE = path.join(new URL(OUT_DIR).pathname.replace(/^\/([A-Za-z]):/, "$1:"), `${MODEL_NAME}.tar.gz`);
+const OUT_FILE = path.join(new URL(OUT_DIR).pathname.replace(/^\/([A-Za-z]):/, "$1:"), `${MODEL_NAME}.tgz`);
 
 async function main() {
   if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });

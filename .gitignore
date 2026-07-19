@@ -2,5 +2,5 @@ node_modules
 dist
 dist-ssr
 *.local
-public/models/*.tar.gz
+public/models/*.tgz
 .DS_Store

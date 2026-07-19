@@ -1,12 +1,21 @@
-const MODEL_URL = "/models/vosk-model-small-en-us-0.15.tar.gz";
+const MODEL_URL = "/models/vosk-model-small-en-us-0.15.tgz";
 const CACHE_NAME = "vosk-model-v1";
+const GZIP_MAGIC = [0x1f, 0x8b];
+
+async function isValidGzip(response: Response): Promise<boolean> {
+  const bytes = new Uint8Array(await response.clone().arrayBuffer());
+  return bytes.length > GZIP_MAGIC.length && bytes[0] === GZIP_MAGIC[0] && bytes[1] === GZIP_MAGIC[1];
+}
 
 export async function getModelUrl(onProgress?: (pct: number) => void): Promise<string> {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(MODEL_URL);
   if (cached) {
-    onProgress?.(100);
-    return MODEL_URL;
+    if (await isValidGzip(cached)) {
+      onProgress?.(100);
+      return MODEL_URL;
+    }
+    await cache.delete(MODEL_URL);
   }
 
   const response = await fetch(MODEL_URL);
@@ -31,6 +40,11 @@ export async function getModelUrl(onProgress?: (pct: number) => void): Promise<s
   const cachedResponse = new Response(blob, {
     headers: { "Content-Type": "application/gzip", "Content-Length": String(received) }
   });
+  if (!(await isValidGzip(cachedResponse))) {
+    throw new Error(
+      "Downloaded speech model is not a valid archive. The model asset may be missing on the server — run `npm run fetch-model` and rebuild."
+    );
+  }
   await cache.put(MODEL_URL, cachedResponse);
   onProgress?.(100);
   return MODEL_URL;
