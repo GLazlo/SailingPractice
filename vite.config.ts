@@ -12,6 +12,9 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["icons/*.png"],
+      devOptions: {
+        enabled: true
+      },
       manifest: {
         name: "NATO Alphabet Practice",
         short_name: "NATO Spell",

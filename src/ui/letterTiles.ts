@@ -6,12 +6,14 @@ export function renderLetterTiles(match: MatchState): string {
     .split("")
     .map((letter, index) => {
       const phonetic = getPhoneticLetter(letter);
-      const matched = index < match.pointer;
+      const isSkipped = match.skipped.includes(index);
+      const matched = index < match.pointer && !isSkipped;
       const isNext = index === match.pointer;
-      const status = matched ? "matched" : isNext ? "next" : "pending";
-      const sub = matched && phonetic ? `${phonetic.canonical} ✓` : "";
+      const status = isSkipped ? "revealed" : matched ? "matched" : isNext ? "next" : "pending";
+      const sub = matched && phonetic ? `${phonetic.canonical} ✓` : isSkipped && phonetic ? phonetic.canonical : "";
+      const label = matched ? ", matched" : isSkipped ? ", revealed" : "";
       return `
-        <div class="tile tile--${status}" aria-label="Letter ${letter}${matched ? ", matched" : ""}">
+        <div class="tile tile--${status}" aria-label="Letter ${letter}${label}">
           <span class="tile__letter">${letter}</span>
           <span class="tile__phonetic">${sub}</span>
         </div>

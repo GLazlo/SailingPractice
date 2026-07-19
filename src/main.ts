@@ -1,5 +1,5 @@
 import { AppStateMachine } from "./app/stateMachine";
-import { createSession, applyTokensToSession, type Session } from "./app/session";
+import { createSession, applyTokensToSession, skipCurrentLetter, type Session } from "./app/session";
 import { randomWord } from "./domain/words";
 import { VoskSpeechEngine } from "./speech/voskEngine";
 import type { SpeechEngine } from "./speech/engine";
@@ -36,6 +36,11 @@ function paint(): void {
   bindEvents();
 }
 
+function updatePartialText(): void {
+  const el = document.querySelector<HTMLElement>(".transcript__partial");
+  if (el) el.textContent = partial;
+}
+
 function bindEvents(): void {
   const state = machine.getState();
 
@@ -60,11 +65,11 @@ function bindEvents(): void {
       void handleStop();
     });
     document.getElementById("reveal-btn")?.addEventListener("click", () => {
-      void handleStop();
+      void handleReveal();
     });
   }
 
-  if (state.kind === "success") {
+  if (state.kind === "success" || state.kind === "revealed") {
     document.getElementById("continue-btn")?.addEventListener("click", () => {
       session = null;
       wordInput = "";
@@ -106,7 +111,7 @@ async function handleStart(): Promise<void> {
     });
     speech.onPartial((text) => {
       partial = text;
-      paint();
+      updatePartialText();
     });
     speech.onError((err) => {
       machine.toError(err.message);
@@ -120,15 +125,38 @@ async function handleStart(): Promise<void> {
 }
 
 async function handleSuccess(word: string): Promise<void> {
-  await engine?.stop();
+  await stopEngine();
   machine.toSuccess(word);
 }
 
+async function stopEngine(): Promise<void> {
+  try {
+    await engine?.stop();
+  } catch (err) {
+    console.error("Failed to stop speech engine", err);
+  }
+}
+
 async function handleStop(): Promise<void> {
-  await engine?.stop();
+  await stopEngine();
   session = null;
   partial = "";
   machine.toIdle();
+}
+
+async function handleReveal(): Promise<void> {
+  if (!session) return;
+  session = skipCurrentLetter(session);
+
+  if (session.match.done) {
+    const match = session.match;
+    await stopEngine();
+    session = null;
+    partial = "";
+    machine.toRevealed(match);
+  } else {
+    paint();
+  }
 }
 
 machine.subscribe(() => paint());

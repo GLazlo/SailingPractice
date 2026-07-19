@@ -1,8 +1,11 @@
+import type { MatchState } from "../domain/matcher";
+
 export type AppState =
   | { kind: "idle" }
   | { kind: "preparingModel"; progress: number }
   | { kind: "listening"; word: string }
   | { kind: "success"; word: string }
+  | { kind: "revealed"; match: MatchState }
   | { kind: "error"; message: string };
 
 export type Listener = (state: AppState) => void;
@@ -38,6 +41,10 @@ export class AppStateMachine {
 
   toSuccess(word: string): void {
     this.set({ kind: "success", word });
+  }
+
+  toRevealed(match: MatchState): void {
+    this.set({ kind: "revealed", match });
   }
 
   toError(message: string): void {

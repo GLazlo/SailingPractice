@@ -10,7 +10,9 @@
       "Bash(npx eslint *)",
       "Bash(npx vitest *)",
       "Bash(tar --version)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

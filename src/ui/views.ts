@@ -1,5 +1,6 @@
 import type { AppState } from "../app/stateMachine";
 import type { Session } from "../app/session";
+import type { MatchState } from "../domain/matcher";
 import { renderLetterTiles } from "./letterTiles";
 import { renderTranscript } from "./transcript";
 import { getPhoneticLetter } from "../domain/natoAlphabet";
@@ -23,6 +24,8 @@ export function render(ctx: ViewContext): string {
       return renderListening(ctx);
     case "success":
       return renderSuccess(ctx.state.word);
+    case "revealed":
+      return renderRevealed(ctx.state.match);
     case "error":
       return renderError(ctx.state.message);
   }
@@ -81,6 +84,17 @@ function renderSuccess(word: string): string {
       <h1>🎉 Well done!</h1>
       <p class="success-word">${word}</p>
       <p class="success-phonetic">${spelled}</p>
+      <button id="continue-btn" type="button">Continue</button>
+    </div>
+  `;
+}
+
+function renderRevealed(match: MatchState): string {
+  return `
+    <div class="screen screen--revealed" aria-live="polite">
+      <h1>Here's the answer</h1>
+      <div class="tiles">${renderLetterTiles(match)}</div>
+      <div class="reveal-banner" aria-live="polite">Expected: <span class="reveal-word">${match.word}</span></div>
       <button id="continue-btn" type="button">Continue</button>
     </div>
   `;

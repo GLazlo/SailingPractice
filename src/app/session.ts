@@ -1,4 +1,4 @@
-import { applyTranscript, createMatch, type MatchState } from "../domain/matcher";
+import { applyTranscript, createMatch, skipLetter, type MatchState } from "../domain/matcher";
 
 export interface Session {
   match: MatchState;
@@ -15,4 +15,8 @@ export function applyTokensToSession(session: Session, tokens: string[]): Sessio
     match: result.state,
     rejectedLog: [...session.rejectedLog, ...result.rejected].slice(-10)
   };
+}
+
+export function skipCurrentLetter(session: Session): Session {
+  return { match: skipLetter(session.match), rejectedLog: session.rejectedLog };
 }

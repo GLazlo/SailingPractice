@@ -158,6 +158,11 @@ progress {
   color: #0a1410;
 }
 
+.tile--revealed {
+  background: var(--next);
+  color: #3d2f05;
+}
+
 .tile__letter {
   font-size: 1.3rem;
   font-weight: 700;
@@ -192,6 +197,18 @@ progress {
   background: rgba(255, 107, 107, 0.12);
   padding: 0.1rem 0.4rem;
   border-radius: 0.3rem;
+}
+
+.reveal-banner {
+  width: 100%;
+  min-height: 1.6rem;
+  font-size: 0.95rem;
+  color: var(--next);
+}
+
+.reveal-word {
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
 
 .success-word {
