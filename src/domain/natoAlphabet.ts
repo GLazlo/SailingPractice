@@ -55,3 +55,40 @@ export function lookupLetterByToken(token: string): string | null {
   const normalized = token.trim().toLowerCase().replace(/[^a-z]/g, "");
   return FORM_TO_LETTER.get(normalized) ?? null;
 }
+
+const MULTI_WORD_FORMS = NATO_ALPHABET.flatMap((entry) =>
+  entry.grammarForms
+    .map((form) => form.split(/[\s-]+/))
+    .filter((words) => words.length > 1)
+).sort((a, b) => b.length - a.length);
+
+// Vosk's grammar accepts multi-word forms like "x ray", but the recognizer's
+// result text is plain whitespace-separated words with no phrase boundaries.
+// Re-merge those word sequences before per-token letter lookup, otherwise
+// "x ray" is seen as two unmatched tokens ("x", "ray") instead of one letter.
+export function tokenizeTranscript(text: string): string[] {
+  const words = text
+    .trim()
+    .split(/\s+/)
+    .filter((w) => w.length > 0 && w !== "[unk]");
+
+  const tokens: string[] = [];
+  let i = 0;
+  outer: while (i < words.length) {
+    for (const seq of MULTI_WORD_FORMS) {
+      const len = seq.length;
+      if (i + len > words.length) continue;
+      const matches = seq.every(
+        (w, idx) => w.toLowerCase() === words[i + idx].toLowerCase()
+      );
+      if (matches) {
+        tokens.push(seq.join(""));
+        i += len;
+        continue outer;
+      }
+    }
+    tokens.push(words[i]);
+    i += 1;
+  }
+  return tokens;
+}

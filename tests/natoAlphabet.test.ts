@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { NATO_ALPHABET, buildGrammar, lookupLetterByToken } from "../src/domain/natoAlphabet";
+import {
+  NATO_ALPHABET,
+  buildGrammar,
+  lookupLetterByToken,
+  tokenizeTranscript
+} from "../src/domain/natoAlphabet";
 
 describe("natoAlphabet", () => {
   it("has all 26 letters", () => {
@@ -34,5 +39,22 @@ describe("natoAlphabet", () => {
   it("returns null for unrecognized tokens", () => {
     expect(lookupLetterByToken("banana")).toBeNull();
     expect(lookupLetterByToken("")).toBeNull();
+  });
+
+  describe("tokenizeTranscript", () => {
+    it("merges a two-word 'x ray' recognition into a single X token", () => {
+      const tokens = tokenizeTranscript("x ray");
+      expect(tokens).toEqual(["xray"]);
+      expect(lookupLetterByToken(tokens[0])).toBe("X");
+    });
+
+    it("merges 'x ray' within a longer transcript without disturbing other words", () => {
+      const tokens = tokenizeTranscript("alfa x ray bravo");
+      expect(tokens.map(lookupLetterByToken)).toEqual(["A", "X", "B"]);
+    });
+
+    it("drops [unk] and stray whitespace like the old splitter did", () => {
+      expect(tokenizeTranscript("  alfa   [unk]  bravo ")).toEqual(["alfa", "bravo"]);
+    });
   });
 });

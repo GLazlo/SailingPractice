@@ -1,6 +1,6 @@
 import type { SpeechEngine } from "./engine";
 import { getModelUrl } from "./modelStore";
-import { buildGrammar } from "../domain/natoAlphabet";
+import { buildGrammar, tokenizeTranscript } from "../domain/natoAlphabet";
 import { startAudioSession, type AudioSession } from "./audio";
 
 interface VoskModel {
@@ -60,10 +60,7 @@ export class VoskSpeechEngine implements SpeechEngine {
 
     this.recognizer.on("result", (message) => {
       const text = message.result?.text ?? "";
-      const tokens = text
-        .split(/\s+/)
-        .map((t) => t.trim())
-        .filter((t) => t.length > 0 && t !== "[unk]");
+      const tokens = tokenizeTranscript(text);
       if (tokens.length > 0) this.finalCb?.(tokens);
     });
 
