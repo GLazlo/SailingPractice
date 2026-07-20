@@ -25,7 +25,14 @@ async function main() {
   await pipeline(Readable.fromWeb(response.body), createWriteStream(zipPath));
 
   console.log("Extracting archive...");
-  execFileSync("tar", ["-xf", zipPath], { cwd: workDir, stdio: "inherit" });
+  try {
+    // Linux (incl. GitHub Actions) and git-bash: GNU tar can't read zip archives, so use unzip.
+    execFileSync("unzip", ["-q", zipPath], { cwd: workDir, stdio: "inherit" });
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
+    // Native Windows and macOS: no unzip on PATH, but tar is bsdtar, which reads zip natively.
+    execFileSync("tar", ["-xf", zipPath], { cwd: workDir, stdio: "inherit" });
+  }
 
   console.log("Repackaging as tar.gz...");
   execFileSync("tar", ["-czf", OUT_FILE, MODEL_NAME], { cwd: workDir, stdio: "inherit" });
