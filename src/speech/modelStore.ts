@@ -1,4 +1,4 @@
-const MODEL_URL = "/models/vosk-model-small-en-us-0.15.tgz";
+const MODEL_URL = `${import.meta.env.BASE_URL}models/vosk-model-small-en-us-0.15.tgz`;
 const CACHE_NAME = "vosk-model-v1";
 const GZIP_MAGIC = [0x1f, 0x8b];
 
