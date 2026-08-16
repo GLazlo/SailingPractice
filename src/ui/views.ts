@@ -114,3 +114,12 @@ function renderError(message: string): string {
     </div>
   `;
 }
+
+export function renderPlaceholder(title: string, description: string): string {
+  return `
+    <div class="screen screen--placeholder">
+      <h1>${title}</h1>
+      <p>${description}</p>
+    </div>
+  `;
+}

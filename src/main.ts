@@ -3,7 +3,9 @@ import { createSession, applyTokensToSession, skipCurrentLetter, type Session } 
 import { randomWord } from "./domain/words";
 import { VoskSpeechEngine } from "./speech/voskEngine";
 import type { SpeechEngine } from "./speech/engine";
-import { render, type ViewContext } from "./ui/views";
+import { render, renderPlaceholder, type ViewContext } from "./ui/views";
+import { renderShell } from "./ui/shell";
+import type { Route } from "./app/route";
 
 const root = document.getElementById("app");
 if (!root) throw new Error("Missing #app root element");
@@ -16,6 +18,9 @@ let wordInput = "";
 let wordInputError: string | null = null;
 let modelReady = false;
 let micActive = true;
+let route: Route = "nato";
+let menuOpen = false;
+let radioOpen = true;
 
 const WORD_PATTERN = /^[A-Za-z]{1,12}$/;
 
@@ -24,18 +29,69 @@ function getEngine(): SpeechEngine {
   return engine;
 }
 
+function renderPage(): string {
+  switch (route) {
+    case "nato": {
+      const ctx: ViewContext = {
+        state: machine.getState(),
+        session,
+        partial,
+        wordInput,
+        wordInputError,
+        modelReady,
+        micActive
+      };
+      return render(ctx);
+    }
+    case "calls":
+      return renderPlaceholder("Calls", "Radio call practice is coming soon.");
+    case "ship":
+      return renderPlaceholder("Ship", "Ship information is coming soon.");
+    case "maneuvers":
+      return renderPlaceholder("Maneuvers", "Maneuvers practice is coming soon.");
+  }
+}
+
 function paint(): void {
-  const ctx: ViewContext = {
-    state: machine.getState(),
-    session,
-    partial,
-    wordInput,
-    wordInputError,
-    modelReady,
-    micActive
-  };
-  root!.innerHTML = render(ctx);
-  bindEvents();
+  root!.innerHTML = renderShell({ route, menuOpen, radioOpen }, renderPage());
+  bindShellEvents();
+  if (route === "nato") bindEvents();
+}
+
+function navigateTo(next: Route): void {
+  if (route === "nato" && next !== "nato") {
+    const state = machine.getState();
+    if (state.kind === "listening" || state.kind === "preparingModel") {
+      void stopEngine();
+      session = null;
+      partial = "";
+      machine.toIdle();
+    }
+  }
+  route = next;
+  menuOpen = false;
+  paint();
+}
+
+function bindShellEvents(): void {
+  document.getElementById("menu-toggle")?.addEventListener("click", () => {
+    menuOpen = !menuOpen;
+    paint();
+  });
+  document.getElementById("nav-backdrop")?.addEventListener("click", () => {
+    menuOpen = false;
+    paint();
+  });
+  document.getElementById("radio-toggle")?.addEventListener("click", () => {
+    radioOpen = !radioOpen;
+    paint();
+  });
+  document.querySelectorAll<HTMLButtonElement>("[data-route]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = btn.dataset.route as Route;
+      navigateTo(next);
+    });
+  });
 }
 
 function updatePartialText(): void {
