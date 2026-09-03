@@ -272,8 +272,11 @@ button:hover {
   color: var(--text);
 }
 
+/* Inside the column-flex .screen, the global "button { flex: 1 }" would stretch
+   a lone button to fill the whole card height. */
 #retry-btn,
-#continue-btn {
+#continue-btn,
+#calls-retry-btn {
   flex: none;
   width: 100%;
 }
@@ -408,4 +411,319 @@ progress {
 .success-phonetic {
   color: var(--muted);
   margin: 0;
+}
+
+/* ------------------------------------------------------------ radio calls */
+
+.screen--calls {
+  align-items: stretch;
+  text-align: left;
+  gap: 1.25rem;
+  padding: 1.25rem 1rem;
+}
+
+.card {
+  background: var(--bg);
+  border: 1px solid var(--pending);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.card__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.card__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.85rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  align-self: flex-start;
+}
+
+/* The NATO page styles the single word input as a large centred field; the
+   call form needs ordinary text inputs instead. */
+.screen--calls input[type="text"] {
+  font-size: 1rem;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  padding: 0.6rem 0.65rem;
+}
+
+.screen--calls select {
+  width: 100%;
+  padding: 0.6rem 0.65rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--pending);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.field--invalid input[type="text"],
+.field--invalid select {
+  border-color: var(--danger);
+}
+
+.field--unused {
+  opacity: 0.45;
+}
+
+.field__note {
+  margin: 0;
+  min-height: 1rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.field--invalid .field__note {
+  color: var(--danger);
+}
+
+.button-row--compact {
+  width: auto;
+  flex: none;
+}
+
+.button-row--compact button {
+  flex: none;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  background: var(--pending);
+  color: var(--text);
+}
+
+.button-row--start button {
+  flex: none;
+}
+
+.toggle-btn {
+  background: var(--pending);
+  color: var(--text);
+}
+
+button.primary {
+  background: var(--accent);
+  color: #0a1410;
+}
+
+#pause-call-btn,
+#stop-call-btn,
+#clear-result-btn,
+#calls-retry-btn {
+  background: var(--pending);
+  color: var(--text);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  filter: none;
+}
+
+.call-message {
+  background: var(--bg);
+  border: 1px solid var(--pending);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.call-message--empty {
+  border-left-color: var(--pending);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.call-message--empty p {
+  margin: 0;
+}
+
+.call-message__line {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.call-message__divider {
+  margin: 0.35rem 0;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--next);
+}
+
+.call-slot {
+  border-radius: 0.25rem;
+  /* No horizontal padding: adjacent slots are separated by a single space and
+     side padding would read as a double space between them. */
+  padding: 0.05rem 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.call-slot--optional {
+  color: var(--muted);
+}
+
+.call-slot--matched {
+  background: rgba(61, 220, 151, 0.18);
+  color: var(--accent);
+}
+
+.call-slot--partial {
+  background: rgba(242, 201, 76, 0.18);
+  color: var(--next);
+}
+
+.call-slot--missed {
+  background: rgba(255, 107, 107, 0.14);
+  color: var(--danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .call-slot {
+    transition: none;
+  }
+}
+
+.call-live {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.call-live__label {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.call-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.call-hint--warn {
+  color: var(--next);
+}
+
+.call-score {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.checklist__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 0.35rem;
+  background: var(--surface);
+}
+
+.checklist__icon {
+  flex: none;
+  width: 1rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.checklist__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.checklist__item--matched .checklist__icon {
+  color: var(--accent);
+}
+
+.checklist__item--partial .checklist__icon {
+  color: var(--next);
+}
+
+.checklist__item--missed .checklist__icon {
+  color: var(--danger);
+}
+
+.checklist__item--missed .checklist__label {
+  color: var(--muted);
+}
+
+.checklist__tag {
+  flex: none;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: var(--pending);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+.call-playback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.call-playback h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.call-playback audio {
+  width: 100%;
 }

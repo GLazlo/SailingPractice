@@ -1,6 +1,5 @@
 import type { SpeechEngine } from "./engine";
 import { getModelUrl } from "./modelStore";
-import { buildGrammar, tokenizeTranscript } from "../domain/natoAlphabet";
 import { startAudioSession, type AudioSession } from "./audio";
 
 interface VoskModel {
@@ -23,7 +22,7 @@ export class VoskSpeechEngine implements SpeechEngine {
   private model: VoskModel | null = null;
   private recognizer: VoskRecognizer | null = null;
   private audioSession: AudioSession | null = null;
-  private finalCb: ((tokens: string[]) => void) | null = null;
+  private finalCb: ((text: string) => void) | null = null;
   private partialCb: ((text: string) => void) | null = null;
   private errorCb: ((err: Error) => void) | null = null;
 
@@ -35,7 +34,7 @@ export class VoskSpeechEngine implements SpeechEngine {
     this.model = (await createModel(modelUrl)) as unknown as VoskModel;
   }
 
-  async start(): Promise<void> {
+  async start(grammar: string[]): Promise<void> {
     if (!this.model) throw new Error("Speech engine not initialized");
 
     this.audioSession = await startAudioSession((samples) => {
@@ -55,13 +54,12 @@ export class VoskSpeechEngine implements SpeechEngine {
 
     this.recognizer = new this.model.KaldiRecognizer(
       this.audioSession.sampleRate,
-      JSON.stringify(buildGrammar())
+      JSON.stringify(grammar)
     );
 
     this.recognizer.on("result", (message) => {
       const text = message.result?.text ?? "";
-      const tokens = tokenizeTranscript(text);
-      if (tokens.length > 0) this.finalCb?.(tokens);
+      if (text.trim().length > 0) this.finalCb?.(text);
     });
 
     this.recognizer.on("partialresult", (message) => {
@@ -84,7 +82,11 @@ export class VoskSpeechEngine implements SpeechEngine {
     await this.audioSession?.resume();
   }
 
-  onFinalTokens(cb: (tokens: string[]) => void): void {
+  getStream(): MediaStream | null {
+    return this.audioSession?.stream ?? null;
+  }
+
+  onFinalText(cb: (text: string) => void): void {
     this.finalCb = cb;
   }
 

@@ -20,12 +20,43 @@ class PcmForwarderProcessor extends AudioWorkletProcessor {
 registerProcessor("pcm-forwarder", PcmForwarderProcessor);
 `;
 
+/**
+ * getUserMedia rejects with terse names like "Requested device not found",
+ * which tell the user nothing about what to do. Translate the common ones.
+ */
+function describeMicError(err: unknown): Error {
+  const name = err instanceof DOMException ? err.name : "";
+  switch (name) {
+    case "NotFoundError":
+    case "OverconstrainedError":
+      return new Error(
+        "No microphone was found. Connect a microphone and try again. (The in-app browser preview has no microphone — open the app in a normal browser window.)"
+      );
+    case "NotAllowedError":
+    case "SecurityError":
+      return new Error(
+        "Microphone access was blocked. Allow microphone access for this site in your browser, then try again."
+      );
+    case "NotReadableError":
+      return new Error(
+        "The microphone is already in use by another application. Close it and try again."
+      );
+    default:
+      return err instanceof Error ? err : new Error(String(err));
+  }
+}
+
 export async function startAudioSession(
   onFrame: (samples: Float32Array) => void
 ): Promise<AudioSession> {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 }
-  });
+  let stream: MediaStream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 }
+    });
+  } catch (err) {
+    throw describeMicError(err);
+  }
 
   const audioContext = new AudioContext();
   const sampleRate = audioContext.sampleRate;

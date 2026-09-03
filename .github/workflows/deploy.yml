@@ -38,6 +38,10 @@ jobs:
         if: steps.model-cache.outputs.cache-hit != 'true'
         run: npm run fetch-model
 
+      # Runs after the model is present so the vocabulary guard can check that
+      # every word the app can put into a grammar is one the model knows.
+      - run: npm test
+
       - run: npm run build
 
       - uses: actions/configure-pages@v5
