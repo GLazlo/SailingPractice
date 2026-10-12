@@ -5,14 +5,29 @@ export interface ShellContext {
   route: Route;
   menuOpen: boolean;
   radioOpen: boolean;
+  seamanshipOpen: boolean;
 }
 
-function navLink(route: Route, label: string, activeRoute: Route, extraClass = ""): string {
+function navLink(route: Route, label: string, activeRoute: Route): string {
   const active = route === activeRoute;
   return `
     <li>
-      <button class="nav-menu__link${extraClass ? ` ${extraClass}` : ""}${active ? " nav-menu__link--active" : ""}"
+      <button class="nav-menu__link${active ? " nav-menu__link--active" : ""}"
         type="button" data-route="${route}" aria-current="${active ? "page" : "false"}">${label}</button>
+    </li>
+  `;
+}
+
+function navGroup(id: string, label: string, open: boolean, links: string): string {
+  return `
+    <li class="nav-menu__item">
+      <button id="${id}" class="nav-menu__toggle" type="button" aria-expanded="${open}">
+        <span>${label}</span>
+        <span class="nav-menu__chevron${open ? " nav-menu__chevron--open" : ""}" aria-hidden="true">›</span>
+      </button>
+      <ul class="nav-submenu${open ? " nav-submenu--open" : ""}">
+        ${links}
+      </ul>
     </li>
   `;
 }
@@ -32,18 +47,20 @@ export function renderShell(ctx: ShellContext, pageHtml: string): string {
       <div id="nav-backdrop" class="nav-backdrop${ctx.menuOpen ? " nav-backdrop--visible" : ""}"></div>
       <nav id="nav-drawer" class="nav-drawer${ctx.menuOpen ? " nav-drawer--open" : ""}" aria-hidden="${!ctx.menuOpen}">
         <ul class="nav-menu">
-          <li class="nav-menu__item">
-            <button id="radio-toggle" class="nav-menu__toggle" type="button" aria-expanded="${ctx.radioOpen}">
-              <span>Radio</span>
-              <span class="nav-menu__chevron${ctx.radioOpen ? " nav-menu__chevron--open" : ""}" aria-hidden="true">›</span>
-            </button>
-            <ul class="nav-submenu${ctx.radioOpen ? " nav-submenu--open" : ""}">
-              ${navLink("nato", "NATO Alphabet", ctx.route)}
-              ${navLink("calls", "Calls", ctx.route)}
-            </ul>
-          </li>
-          ${navLink("ship", "Ship", ctx.route, "nav-menu__link--top")}
-          ${navLink("maneuvers", "Maneuvers", ctx.route, "nav-menu__link--top")}
+          ${navGroup(
+            "radio-toggle",
+            "Radio",
+            ctx.radioOpen,
+            navLink("nato", "NATO Alphabet", ctx.route) + navLink("calls", "Calls", ctx.route)
+          )}
+          ${navGroup(
+            "seamanship-toggle",
+            "Seamanship",
+            ctx.seamanshipOpen,
+            navLink("ship", "Ship", ctx.route) +
+              navLink("maneuvers", "Maneuvers", ctx.route) +
+              navLink("knots", "Knots", ctx.route)
+          )}
         </ul>
       </nav>
       <main class="app-main">${pageHtml}</main>

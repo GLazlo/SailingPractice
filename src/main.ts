@@ -1,7 +1,11 @@
 import { createCallsController } from "./app/callsController";
+import { createGlossaryController } from "./app/glossaryController";
 import { createNatoController } from "./app/natoController";
 import type { PageController } from "./app/pageController";
 import type { Route } from "./app/route";
+import { KNOTS_PAGE } from "./domain/knots";
+import { MANEUVERS_PAGE } from "./domain/maneuvers";
+import { SHIP_PAGE } from "./domain/shipParts";
 import { renderShell } from "./ui/shell";
 import { renderPlaceholder } from "./ui/views";
 
@@ -11,31 +15,38 @@ if (!root) throw new Error("Missing #app root element");
 let route: Route = "nato";
 let menuOpen = false;
 let radioOpen = true;
+let seamanshipOpen = true;
 let painting = false;
 
 const controllers = new Map<Route, PageController>();
+
+function createController(target: Route): PageController {
+  switch (target) {
+    case "nato":
+      return createNatoController(paint);
+    case "calls":
+      return createCallsController(paint);
+    case "ship":
+      return createGlossaryController(SHIP_PAGE, paint);
+    case "maneuvers":
+      return createGlossaryController(MANEUVERS_PAGE, paint);
+    case "knots":
+      return createGlossaryController(KNOTS_PAGE, paint);
+  }
+}
 
 function controllerFor(target: Route): PageController | null {
   const existing = controllers.get(target);
   if (existing) return existing;
 
-  let created: PageController | null = null;
-  if (target === "nato") created = createNatoController(paint);
-  if (target === "calls") created = createCallsController(paint);
+  const created = createController(target);
   if (created) controllers.set(target, created);
-  return created;
+  return created ?? null;
 }
 
 function renderPage(controller: PageController | null): string {
   if (controller) return controller.render();
-  switch (route) {
-    case "ship":
-      return renderPlaceholder("Ship", "Ship information is coming soon.");
-    case "maneuvers":
-      return renderPlaceholder("Maneuvers", "Maneuvers practice is coming soon.");
-    default:
-      return renderPlaceholder("Not found", "This page does not exist yet.");
-  }
+  return renderPlaceholder("Not found", "This page does not exist yet.");
 }
 
 function paint(): void {
@@ -45,7 +56,7 @@ function paint(): void {
   painting = true;
   try {
     const controller = controllerFor(route);
-    root!.innerHTML = renderShell({ route, menuOpen, radioOpen }, renderPage(controller));
+    root!.innerHTML = renderShell({ route, menuOpen, radioOpen, seamanshipOpen }, renderPage(controller));
     bindShellEvents();
     controller?.bindEvents();
   } finally {
@@ -71,6 +82,10 @@ function bindShellEvents(): void {
   });
   document.getElementById("radio-toggle")?.addEventListener("click", () => {
     radioOpen = !radioOpen;
+    paint();
+  });
+  document.getElementById("seamanship-toggle")?.addEventListener("click", () => {
+    seamanshipOpen = !seamanshipOpen;
     paint();
   });
   document.querySelectorAll<HTMLButtonElement>("[data-route]").forEach((btn) => {

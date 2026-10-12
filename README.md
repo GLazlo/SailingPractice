@@ -9,6 +9,11 @@ A progressive web app for practicing NATO phonetic alphabet and radio communicat
   - Mayday (emergency)
   - Panpan (urgent non-emergency)
   - Securité (safety warning)
+- **Seamanship Glossary**: German and English names with what each thing is for
+  - Ship: parts of a cruising sloop on a tappable side view and deck plan
+  - Maneuvers: points of sail, maneuver tracks and the commands that go with them
+  - Knots: the common knots and when to use each
+  - Flashcard practice in either direction, with progress kept on the device
 - **Speech Recognition**: Real-time voice input using Vosk for offline speech recognition
 - **Progressive Web App**: Install as an app on your device, works offline
 - **Ship Identity Practice**: Practice using ship callsigns and identity protocols
